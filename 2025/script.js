@@ -1,5 +1,5 @@
 // script.js
-// Fetch, sort by height, and fade-in images as they load without waiting for all to finish
+// Fetch, sort by height, and fade-in images as they load (no waiting for all)
 
 document.addEventListener('DOMContentLoaded', () => {
   const owner = 'bjornelvar';
@@ -44,36 +44,56 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  function insertImage({ src, orientation }) {
-    if (currentFilter !== 'all' && orientation !== currentFilter) return;
-    const imgEl = document.createElement('img');
-    imgEl.src = src;
-    imgEl.onload = () => {
-      imgEl.classList.add('loaded');
-      sortGallery();
-    };
-    imgEl.onclick = () => {
-      lightboxImg.src = src;
-      lightbox.style.display = 'flex';
-    };
-    gallery.appendChild(imgEl);
-  }
-
   function sortGallery() {
     const imgs = Array.from(gallery.children);
     imgs.sort((a, b) => b.naturalHeight - a.naturalHeight);
     imgs.forEach(img => gallery.appendChild(img));
   }
 
+  function applyFilter() {
+    const imgs = Array.from(gallery.children);
+    imgs.forEach(img => {
+      const orientation = img.dataset.orientation;
+      if (
+        currentFilter === 'all' ||
+        !orientation || // still loading -> show
+        orientation === currentFilter
+      ) {
+        img.style.display = '';
+      } else {
+        img.style.display = 'none';
+      }
+    });
+  }
+
+  function createAndInsertImage(src) {
+    const imgEl = document.createElement('img');
+    imgEl.src = src;
+    imgEl.loading = 'lazy';
+
+    imgEl.addEventListener('load', () => {
+      // Compute orientation once the real DOM image has loaded
+      const orientation =
+        imgEl.naturalHeight > imgEl.naturalWidth ? 'portrait' : 'landscape';
+      imgEl.dataset.orientation = orientation;
+
+      imgEl.classList.add('loaded');
+      sortGallery();
+      applyFilter();
+    });
+
+    imgEl.addEventListener('click', () => {
+      lightboxImg.src = src;
+      lightbox.style.display = 'flex';
+    });
+
+    gallery.appendChild(imgEl); // append immediately so it appears ASAP
+  }
+
   async function loadImages() {
     const urls = await fetchImageUrls();
     urls.forEach(src => {
-      const img = new Image();
-      img.src = src;
-      img.onload = () => {
-        const orientation = img.naturalHeight > img.naturalWidth ? 'portrait' : 'landscape';
-        insertImage({ src, orientation });
-      };
+      createAndInsertImage(src);
     });
   }
 
@@ -81,11 +101,12 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.filters a').forEach(link => {
     link.addEventListener('click', e => {
       e.preventDefault();
-      document.querySelector('.filters a.active').classList.remove('active');
+      const active = document.querySelector('.filters a.active');
+      if (active) active.classList.remove('active');
       link.classList.add('active');
+
       currentFilter = link.dataset.filter;
-      gallery.innerHTML = '';
-      loadImages();
+      applyFilter();
     });
   });
 
