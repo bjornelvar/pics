@@ -1,87 +1,134 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Pics - Bjössi</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 2rem;
+      }
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Pics - Bjössi</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 2rem;
-    }
+      .filters {
+        margin-bottom: 1rem;
+        font-size: 1rem;
+      }
 
-    .filters {
-      margin-bottom: 1rem;
-      font-size: 1rem;
-    }
+      .filters a {
+        margin: 0 0.5rem;
+        color: #717171;
+        text-decoration: none;
+        cursor: pointer;
+      }
 
-    .filters a {
-      margin: 0 0.5rem;
-      color: #717171;
-      text-decoration: none;
-      cursor: pointer;
-    }
+      .filters a.active {
+        color: #000000;
+        text-decoration: underline;
+        font-weight: bold;
+      }
 
-    .filters a.active {
-      color: #000000;
-      text-decoration: underline;
-      font-weight: bold;
-    }
+      .gallery {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        grid-gap: 1rem;
+        max-width: 900px;
+        width: 100%;
+      }
 
-    .gallery {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      grid-gap: 1rem;
-      max-width: 900px;
-      width: 100%;
-    }
+      .gallery img {
+        width: 100%;
+        height: auto;
+        border-radius: 4px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+      }
 
-    .gallery img {
-      width: 100%;
-      height: auto;
-      border-radius: 4px;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-      cursor: pointer;
-    }
+      #lightbox {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+      }
 
-    #lightbox {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.8);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 10;
-    }
+      #lightbox img {
+        max-width: 90%;
+        max-height: 90%;
+        border-radius: 4px;
+        box-shadow: 0 2px 10px rgba(255, 255, 255, 0.2);
+      }
 
-    #lightbox img {
-      max-width: 90%;
-      max-height: 90%;
-      border-radius: 4px;
-      box-shadow: 0 2px 10px rgba(255, 255, 255, 0.2);
-    }
-  </style>
-</head>
-<script src="script.js" defer></script>
-<body>
-  <div class="filters">
-    <a href="#" data-filter="all" class="active">All</a>
-    <a href="#" data-filter="portrait">Portraits</a>
-    <a href="#" data-filter="landscape">Landscapes</a>
-  </div>
+      #loading-overlay {
+        position: fixed;
+        inset: 0;
+        background: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+      }
 
-  <div class="gallery" id="gallery"></div>
+      #loading-overlay.hidden {
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+      }
 
-  <div id="lightbox" onclick="this.style.display='none'">
-    <img id="lightbox-img" src="" alt="Full size">
-  </div>
-</body>
+      #loading-overlay .loader {
+        text-align: center;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+        color: #111;
+      }
 
+      #loading-overlay .spinner {
+        width: 48px;
+        height: 48px;
+        margin: 0 auto 16px;
+        border: 4px solid #e0e0e0;
+        border-top-color: #111;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+      }
+
+      #loading-overlay .text {
+        font-size: 16px;
+        letter-spacing: 0.02em;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </head>
+  <script src="script.js" defer></script>
+  <body>
+    <div id="loading-overlay">
+      <div class="loader">
+        <div class="spinner"></div>
+        <div class="text">Loading photos…</div>
+      </div>
+    </div>
+    <div class="filters">
+      <a href="#" data-filter="all" class="active">All</a>
+      <a href="#" data-filter="portrait">Portraits</a>
+      <a href="#" data-filter="landscape">Landscapes</a>
+    </div>
+
+    <div class="gallery" id="gallery"></div>
+
+    <div id="lightbox" onclick="this.style.display='none'">
+      <img id="lightbox-img" src="" alt="Full size" />
+    </div>
+  </body>
 </html>
